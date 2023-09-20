@@ -5,7 +5,7 @@ const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
 const BASE_URL = "http://api.tvmaze.com/";
-
+const CONFUSED_DOG = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F2d%2F0e%2Fb6%2F2d0eb6cdb8a4c77c25bb5460084ecffd.png&f=1&nofb=1&ipt=653643550e3764f8fb2fe84b94bfa8e370b2864c0a0e1cbdf10534ba3ce65230&ipo=images";
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -16,13 +16,29 @@ const BASE_URL = "http://api.tvmaze.com/";
 
 async function getShowsByTerm(searchTerm) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  const params = new URLSearchParams({q: searchTerm});
+  const params = new URLSearchParams({ q: searchTerm });
   const endpoint = BASE_URL + `search/shows?${params}`;
   const response = await fetch(endpoint);
   const data = await response.json();
 
-  console.log("getShowsByTerm data = ", data)
-  return data;
+  const shows = data.map(function (showObject) {
+    let imageURL = null;
+    try {
+      imageURL = showObject.show.image.original;
+    } catch(error) {
+      imageURL = CONFUSED_DOG;
+    }
+
+    return {
+      id: showObject.show.id,
+      name: showObject.show.name,
+      summary: showObject.show.summary,
+      image: imageURL,
+    };
+  });
+
+  console.log("getShowsByTerm data = ", shows);
+  return shows;
 }
 
 
@@ -70,7 +86,7 @@ async function searchShowsAndDisplay() {
   displayShows(shows);
 }
 
-$searchForm.on("submit", async function handleSearchForm (evt) {
+$searchForm.on("submit", async function handleSearchForm(evt) {
   evt.preventDefault();
   await searchShowsAndDisplay();
 });

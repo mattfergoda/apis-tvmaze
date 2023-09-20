@@ -97,27 +97,40 @@ async function getEpisodesOfShow(showId) {
   const data = await response.json();
   //console.log('getEpisodesOfShow data', data);
 
-  const episodes = data.map(function (episodeObject) {
+  const episodes = data.map(episode => {
     return {
-      id: episodeObject.id,
-      name: episodeObject.name,
-      season: episodeObject.season,
-      number: episodeObject.number,
+      id: episode.id,
+      name: episode.name,
+      season: episode.season,
+      number: episode.number,
     };
   });
   //console.log('getEpisodesOfShow episodes', episodes);
   return episodes;
 }
 
-/** Write a clear docstring for this function... */
+/** Takes an array of episode objects and displays information from them
+ * in the DOM.
+*/
 
 function displayEpisodes(episodes) {
+  $episodesList.empty();
   for (let episode of episodes) {
-    const episodeInfo = `${episode.name} (season ${episode.season}, number ${episode.number})`
+    const episodeInfo = `${episode.name} (season ${episode.season}, number ${episode.number})`;
     const $episodeElement = $("<li>").text(episodeInfo);
     $episodesList.append($episodeElement);
   }
   $episodesArea.show();
-
-// add other functions that will be useful / match our structure & design
 }
+
+/** Search for episodes from TV show and display episodes to the DOM.
+ */
+async function searchEpisodesAndDisplay(showId) {
+  const episodes = await getEpisodesOfShow(showId);
+  displayEpisodes(episodes);
+}
+
+$showsList.on("click", ".btn", async function handleEpisodesClick(evt) {
+  const showId = $(evt.target).closest('.Show').data('show-id');
+  await searchEpisodesAndDisplay(showId);
+});

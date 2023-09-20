@@ -1,6 +1,7 @@
 "use strict";
 
 const $showsList = $("#showsList");
+const $episodesList = $("#episodesList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
@@ -90,10 +91,33 @@ $searchForm.on("submit", async function handleSearchForm(evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+async function getEpisodesOfShow(showId) {
+  const endpoint = `${BASE_URL}shows/${showId}/episodes`;
+  const response = await fetch(endpoint);
+  const data = await response.json();
+  //console.log('getEpisodesOfShow data', data);
+
+  const episodes = data.map(function (episodeObject) {
+    return {
+      id: episodeObject.id,
+      name: episodeObject.name,
+      season: episodeObject.season,
+      number: episodeObject.number,
+    };
+  });
+  //console.log('getEpisodesOfShow episodes', episodes);
+  return episodes;
+}
 
 /** Write a clear docstring for this function... */
 
-// function displayEpisodes(episodes) { }
+function displayEpisodes(episodes) {
+  for (let episode of episodes) {
+    const episodeInfo = `${episode.name} (season ${episode.season}, number ${episode.number})`
+    const $episodeElement = $("<li>").text(episodeInfo);
+    $episodesList.append($episodeElement);
+  }
+  $episodesArea.show();
 
 // add other functions that will be useful / match our structure & design
+}

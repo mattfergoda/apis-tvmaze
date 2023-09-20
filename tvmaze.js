@@ -5,7 +5,7 @@ const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 
 const BASE_URL = "http://api.tvmaze.com/";
-const CONFUSED_DOG = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F2d%2F0e%2Fb6%2F2d0eb6cdb8a4c77c25bb5460084ecffd.png&f=1&nofb=1&ipt=653643550e3764f8fb2fe84b94bfa8e370b2864c0a0e1cbdf10534ba3ce65230&ipo=images";
+const ALTERNATE_IMG_URL = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.pinimg.com%2Foriginals%2F2d%2F0e%2Fb6%2F2d0eb6cdb8a4c77c25bb5460084ecffd.png&f=1&nofb=1&ipt=653643550e3764f8fb2fe84b94bfa8e370b2864c0a0e1cbdf10534ba3ce65230&ipo=images";
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -17,23 +17,17 @@ const CONFUSED_DOG = "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%
 async function getShowsByTerm(searchTerm) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
   const params = new URLSearchParams({ q: searchTerm });
-  const endpoint = BASE_URL + `search/shows?${params}`;
+  const endpoint = `${BASE_URL}search/shows?${params}`;
   const response = await fetch(endpoint);
   const data = await response.json();
 
-  const shows = data.map(function (showObject) {
-    let imageURL = null;
-    try {
-      imageURL = showObject.show.image.medium;
-    } catch(error) {
-      imageURL = CONFUSED_DOG;
-    }
-
+  console.log("getShowsByTerm data=", data);
+  const shows = data.map(function (showAndRatingObject) {
     return {
-      id: showObject.show.id,
-      name: showObject.show.name,
-      summary: showObject.show.summary,
-      image: imageURL,
+      id: showAndRatingObject.show.id,
+      name: showAndRatingObject.show.name,
+      summary: showAndRatingObject.show.summary,
+      image: showAndRatingObject.show.image ? showAndRatingObject.show.image.medium : ALTERNATE_IMG_URL,
     };
   });
 
